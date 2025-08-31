@@ -659,3 +659,6 @@ else:
     # عند النشر على Render
     with app.app_context():
         db.create_all()
+    # تشغيل التطبيق على المنفذ المحدد بواسطة Render
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
