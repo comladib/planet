@@ -3,7 +3,7 @@ services:
     name: stock-management
     env: python
     buildCommand: "pip install -r requirements.txt && python init_db.py"
-    startCommand: "python app.py"
+  startCommand: "gunicorn app:app"
     envVars:
       - key: SECRET_KEY
         generateValue: true
