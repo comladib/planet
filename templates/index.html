@@ -1,0 +1,222 @@
+
+{% extends "base.html" %}
+
+{% block title %}Accueil - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+            <h1 class="display-4">Bienvenue dans le système de gestion de stock</h1>
+            <p class="lead">Gérez facilement votre inventaire d'écrans de téléphones mobiles, suivez vos ventes et analysez vos performances.</p>
+        </div>
+    </div>
+</div>
+
+{% with total_ecrans = 0, total_ventes = 0, total_clients = 0, total_marques = 0, dernieres_ventes = [], ecrans_faible_stock = [] %}
+{% endwith %}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_ecrans or 0 }}</h4>
+                        <p class="card-text">Écrans en stock</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-mobile-alt fa-2x"></i>
+                    </div>
+                </div>
+                <a href="{{ url_for('ecrans') }}" class="btn btn-light btn-sm mt-2">Voir les écrans</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_ventes or 0 }}</h4>
+                        <p class="card-text">Ventes effectuées</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                    </div>
+                </div>
+                <a href="{{ url_for('vente') }}" class="btn btn-light btn-sm mt-2">Nouvelle vente</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_clients or 0 }}</h4>
+                        <p class="card-text">Clients enregistrés</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+                <a href="{{ url_for('clients') }}" class="btn btn-light btn-sm mt-2">Voir les clients</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_marques or 0 }}</h4>
+                        <p class="card-text">Marques référencées</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-tags fa-2x"></i>
+                    </div>
+                </div>
+                <a href="{{ url_for('marques') }}" class="btn btn-light btn-sm mt-2">Voir les marques</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Dernières ventes</h5>
+            </div>
+            <div class="card-body">
+                {% if dernieres_ventes %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Écran</th>
+                                    <th>Quantité</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vente in dernieres_ventes %}
+                                    <tr>
+                                        <td>{{ vente.id }}</td>
+                                        <td>{{ vente.client.nom }} {{ vente.client.prenom }}</td>
+                                        <td>{{ vente.ecran.nom }}</td>
+                                        <td>{{ vente.quantite }}</td>
+                                        <td>{{ vente.date_vente.strftime('%d/%m/%Y') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('historique') }}" class="btn btn-primary">Voir tout l'historique</a>
+                    </div>
+                {% else %}
+                    <p class="text-center">Aucune vente enregistrée pour le moment.</p>
+                    <div class="text-center">
+                        <a href="{{ url_for('vente') }}" class="btn btn-primary">Effectuer une vente</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Stock faible</h5>
+            </div>
+            <div class="card-body">
+                {% if ecrans_faible_stock %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Écran</th>
+                                    <th>Marque</th>
+                                    <th>Quantité</th>
+                                    <th>Seuil d'alerte</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ecran in ecrans_faible_stock %}
+                                    <tr>
+                                        <td>{{ ecran.nom }}</td>
+                                        <td>{{ ecran.marque.nom }}</td>
+                                        <td>{{ ecran.quantite }}</td>
+                                        <td>{{ ecran.seuil_alerte }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('ecrans') }}" class="btn btn-primary">Gérer le stock</a>
+                    </div>
+                {% else %}
+                    <p class="text-center">Aucun écran en stock faible. Tout est en ordre !</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <a href="{{ url_for('vente') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-plus-circle me-2"></i> Nouvelle vente
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <a href="{{ url_for('ecrans') }}" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-plus-circle me-2"></i> Ajouter un écran
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <a href="{{ url_for('clients') }}" class="btn btn-info btn-lg w-100">
+                            <i class="fas fa-plus-circle me-2"></i> Ajouter un client
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <a href="{{ url_for('statistiques') }}" class="btn btn-warning btn-lg w-100">
+                            <i class="fas fa-chart-bar me-2"></i> Voir les statistiques
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Récupérer les statistiques pour la page d'accueil
+    $(document).ready(function() {
+        $.get("{{ url_for('stats_accueil') }}", function(data) {
+            // Mettre à jour les cartes avec les statistiques
+            $('.card-title').eq(0).text(data.total_ecrans);
+            $('.card-title').eq(1).text(data.total_ventes);
+            $('.card-title').eq(2).text(data.total_clients);
+            $('.card-title').eq(3).text(data.total_marques);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+
+{% extends "base.html" %}
+
+{% block title %}Facture - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Facture de vente</h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Détails de la facture #{{ vente.id }}</h5>
+                <div>
+                    <a href="{{ url_for('generer_facture_pdf', vente_id=vente.id) }}" class="btn btn-success">
+                        <i class="fas fa-file-pdf"></i> Imprimer la facture
+                    </a>
+                    <a href="{{ url_for('vente') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nouvelle vente
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Informations du client</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Nom:</strong></td>
+                                <td>{{ vente.client.nom }} {{ vente.client.prenom }}</td>
+                            </tr>
+                            {% if vente.client.telephone %}
+                            <tr>
+                                <td><strong>Téléphone:</strong></td>
+                                <td>{{ vente.client.telephone }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if vente.client.email %}
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>{{ vente.client.email }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if vente.client.adresse %}
+                            <tr>
+                                <td><strong>Adresse:</strong></td>
+                                <td>{{ vente.client.adresse }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Informations de la vente</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Date:</strong></td>
+                                <td>{{ vente.date_vente.strftime('%d/%m/%Y %H:%M') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ID de la vente:</strong></td>
+                                <td>{{ vente.id }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5>Détails du produit</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Marque</th>
+                                        <th>Écran</th>
+                                        <th>Barcode</th>
+                                        <th>Quantité</th>
+                                        <th>Prix unitaire</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ vente.ecran.marque.nom }}</td>
+                                        <td>{{ vente.ecran.nom }}</td>
+                                        <td>{{ vente.ecran.barcode }}</td>
+                                        <td>{{ vente.quantite }}</td>
+                                        <td>{{ vente.prix_unitaire }} TND</td>
+                                        <td>{{ (vente.quantite * vente.prix_unitaire)|round(2) }} TND</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="5" class="text-end"><strong>Total:</strong></td>
+                                        <td><strong>{{ (vente.quantite * vente.prix_unitaire)|round(2) }} TND</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <p class="text-muted">Merci pour votre achat!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

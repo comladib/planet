@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: stock-management
+    env: python
+    buildCommand: "pip install -r requirements.txt && python init_db.py"
+    startCommand: "python app.py"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.9.16
+databases:
+  - name: stock-db
+    databaseName: stock
+    user: stock

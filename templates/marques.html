@@ -1,0 +1,117 @@
+
+{% extends "base.html" %}
+
+{% block title %}Gestion des Marques - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Gestion des Marques</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajouterMarqueModal">
+                <i class="fas fa-plus"></i> Ajouter une marque
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Liste des marques</h5>
+            </div>
+            <div class="card-body">
+                {% if marques %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th>Nombre d'écrans</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for marque in marques %}
+                                    <tr>
+                                        <td>{{ marque.id }}</td>
+                                        <td>{{ marque.nom }}</td>
+                                        <td>{{ marque.ecrans|length }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modifierMarqueModal{{ marque.id }}">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <a href="{{ url_for('supprimer_marque', id=marque.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette marque? Tous les écrans associés seront également supprimés.')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Modal pour modifier la marque -->
+                                    <div class="modal fade" id="modifierMarqueModal{{ marque.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Modifier la marque</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form action="{{ url_for('modifier_marque', id=marque.id) }}" method="post">
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label for="nom{{ marque.id }}" class="form-label">Nom</label>
+                                                            <input type="text" class="form-control" id="nom{{ marque.id }}" name="nom" value="{{ marque.nom }}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted">Aucune marque enregistrée pour le moment.</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajouterMarqueModal">
+                            <i class="fas fa-plus"></i> Ajouter une marque
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour ajouter une marque -->
+<div class="modal fade" id="ajouterMarqueModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter une nouvelle marque</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('ajouter_marque') }}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" name="nom" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

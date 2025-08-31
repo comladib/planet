@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="fr" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestion de Stock{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #0d6efd;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        .table {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .alert {
+            border-radius: 10px;
+        }
+        .footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+        }
+        .nav-link {
+            margin-left: 10px;
+        }
+        .active {
+            font-weight: bold;
+        }
+        .alert-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .barcode-container {
+            text-align: center;
+            margin: 10px 0;
+        }
+        .barcode-container img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-mobile-alt"></i> Gestion de Stock d'Écrans
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'ecrans' or request.endpoint.startswith('ajouter_ecran') or request.endpoint.startswith('modifier_ecran') or request.endpoint.startswith('supprimer_ecran') or request.endpoint == 'recherche_ecrans' }}" href="{{ url_for('ecrans') }}">
+                            <i class="fas fa-mobile-alt"></i> Écrans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'marques' or request.endpoint.startswith('ajouter_marque') or request.endpoint.startswith('modifier_marque') or request.endpoint.startswith('supprimer_marque') }}" href="{{ url_for('marques') }}">
+                            <i class="fas fa-tags"></i> Marques
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'clients' or request.endpoint.startswith('ajouter_client') or request.endpoint.startswith('modifier_client') or request.endpoint.startswith('supprimer_client') }}" href="{{ url_for('clients') }}">
+                            <i class="fas fa-users"></i> Clients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'vente' or request.endpoint.startswith('effectuer_vente') or request.endpoint.startswith('facture') }}" href="{{ url_for('vente') }}">
+                            <i class="fas fa-shopping-cart"></i> Vente
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'historique' }}" href="{{ url_for('historique') }}">
+                            <i class="fas fa-history"></i> Historique
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'statistiques' }}" href="{{ url_for('statistiques') }}">
+                            <i class="fas fa-chart-bar"></i> Statistiques
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <div class="position-relative">
+                        <a class="btn btn-outline-light" href="{{ url_for('verifier_alertes') }}" id="alerte-btn">
+                            <i class="fas fa-bell"></i>
+                        </a>
+                        <span class="alert-badge d-none" id="alerte-count">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 Gestion de Stock d'Écrans. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Vérifier les alertes au chargement de la page
+        $(document).ready(function() {
+            verifierAlertes();
+
+            // Vérifier les alertes toutes les 30 secondes
+            setInterval(verifierAlertes, 30000);
+        });
+
+        function verifierAlertes() {
+            $.get("{{ url_for('verifier_alertes') }}", function(data) {
+                if (data.alertes) {
+                    $('#alerte-count').text(data.ecrans.length);
+                    $('#alerte-count').removeClass('d-none');
+
+                    // Afficher une notification si des alertes sont présentes
+                    if ($('#alerte-count').hasClass('just-shown') === false) {
+                        let alertMessage = "Attention: Les écrans suivants sont en stock faible:\n";
+                        data.ecrans.forEach(function(ecran) {
+                            alertMessage += "- " + ecran.nom + ": " + ecran.quantite + " (seuil: " + ecran.seuil + ")\n";
+                        });
+
+                        // Créer une notification Bootstrap
+                        let alertHtml = `
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <strong>Alerte de stock!</strong> Les écrans suivants sont en stock faible:
+                                <ul>
+                        `;
+
+                        data.ecrans.forEach(function(ecran) {
+                            alertHtml += `<li>${ecran.nom}: ${ecran.quantite} (seuil: ${ecran.seuil})</li>`;
+                        });
+
+                        alertHtml += `
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+
+                        $('body').prepend(alertHtml);
+                        $('#alerte-count').addClass('just-shown');
+
+                        // Retirer la classe après 5 secondes pour permettre à l'alerte de s'afficher à nouveau
+                        setTimeout(function() {
+                            $('#alerte-count').removeClass('just-shown');
+                        }, 5000);
+                    }
+                } else {
+                    $('#alerte-count').addClass('d-none');
+                }
+            });
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

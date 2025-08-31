@@ -1,0 +1,129 @@
+
+{% extends "base.html" %}
+
+{% block title %}Historique - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Historique</h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs" id="historiqueTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="ventes-tab" data-bs-toggle="tab" data-bs-target="#ventes" type="button" role="tab" aria-controls="ventes" aria-selected="true">
+                    <i class="fas fa-shopping-cart"></i> Ventes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="stock-tab" data-bs-toggle="tab" data-bs-target="#stock" type="button" role="tab" aria-controls="stock" aria-selected="false">
+                    <i class="fas fa-boxes"></i> Mouvements de stock
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content" id="historiqueTabsContent">
+            <div class="tab-pane fade show active" id="ventes" role="tabpanel" aria-labelledby="ventes-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Historique des ventes</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if ventes %}
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Date</th>
+                                            <th>Client</th>
+                                            <th>Écran</th>
+                                            <th>Quantité</th>
+                                            <th>Prix unitaire</th>
+                                            <th>Total</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for vente in ventes %}
+                                            <tr>
+                                                <td>{{ vente.id }}</td>
+                                                <td>{{ vente.date_vente.strftime('%d/%m/%Y %H:%M') }}</td>
+                                                <td>{{ vente.client.nom }} {{ vente.client.prenom }}</td>
+                                                <td>{{ vente.ecran.marque.nom }} - {{ vente.ecran.nom }}</td>
+                                                <td>{{ vente.quantite }}</td>
+                                                <td>{{ vente.prix_unitaire }} TND</td>
+                                                <td>{{ (vente.quantite * vente.prix_unitaire)|round(2) }} TND</td>
+                                                <td>
+                                                    <a href="{{ url_for('facture', vente_id=vente.id) }}" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-receipt"></i> Facture
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="text-muted">Aucune vente enregistrée pour le moment.</p>
+                                <a href="{{ url_for('vente') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Effectuer une vente
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="stock" role="tabpanel" aria-labelledby="stock-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Historique des mouvements de stock</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if historique_stock %}
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Date</th>
+                                            <th>Type d'opération</th>
+                                            <th>Écran</th>
+                                            <th>Quantité</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for operation in historique_stock %}
+                                            <tr>
+                                                <td>{{ operation.id }}</td>
+                                                <td>{{ operation.date_operation.strftime('%d/%m/%Y %H:%M') }}</td>
+                                                <td>
+                                                    <span class="badge {{ 'bg-success' if operation.type_operation == 'ajout' else 'bg-danger' }}">
+                                                        {{ operation.type_operation|capitalize }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ operation.ecran.marque.nom }} - {{ operation.ecran.nom }}</td>
+                                                <td>{{ operation.quantite }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="text-muted">Aucun mouvement de stock enregistré pour le moment.</p>
+                                <a href="{{ url_for('ecrans') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Ajouter un écran
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
